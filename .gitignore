@@ -1,3 +1,6 @@
+.DS_store
+.counting
+
 # UV (for now)
 uv.lock
 .scripts/

@@ -6,6 +6,10 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+import getpass
+from pathlib import Path 
+import os
+
 DATA_DIR = Path("data")
 
 
@@ -57,12 +61,20 @@ def find_yearmonth(revision: str) -> str:
     return extract_yearmonth(find_timestamp(revision))
 
 
-def main(page: str, limit: int, data_dir: Path):
+
+def main(page: str, limit: int, data_dir: Path, update:bool):
     """
     Downloads the main page (with revisions) for the given page title.
     Organizes the revisions into a folder structure like
     <page_name>/<year>/<month>/<revision_id>.xml
     """
+    
+    print(type(update))
+    print(update)
+    if update == False:
+        print (count_files(data_dir/page))
+        return
+    
     print(f"Downloading {limit} revisions of {page} to {data_dir}")
     raw_revisions = download_page_w_revisions(page, limit=limit)
     validate_page(page, page_xml=raw_revisions)
@@ -75,9 +87,10 @@ def main(page: str, limit: int, data_dir: Path):
             revision_path.parent.mkdir(parents=True, exist_ok=True)
         revision_path.write_text(wiki_revision)
     
-    print("Done!") # You should call count_revisions() here and print the number of revisions
-                   # You should also pass an 'update' argument so that you can decide whether
-                   # to update and refresh or whether to simply count the revisions.   
+    
+    
+    print("Done!")
+    print (count_files(data_dir/page))
 
 
 def construct_path(page_name: str, save_dir: Path, wiki_revision: str) -> Path:
@@ -94,6 +107,23 @@ def validate_page(page_name: str, page_xml: str) -> None:
         _ = _extract_attribute(page_xml, attribute="page")
     except ValueError:
         raise ValueError(f"Page {page_name} does not exist")
+    
+
+def count_files(folder, folders=False):
+    
+    count = 0
+    
+    for item in os.listdir(folder):
+        item_path = os.path.join(folder, item)
+        
+        if os.path.isdir(item_path):
+            if folders == True:
+                count +=1
+            count += count_files(item_path)  # Recursive call for subdirectories
+        else:
+            count += 1  # Increment count for files
+    
+    return count
 
 
 if __name__ == "__main__":
@@ -108,5 +138,6 @@ if __name__ == "__main__":
         default=10,
         help="Number of revisions to download",
     )
+    parser.add_argument("--update", type=bool, default=False, help="Do you want to download new files")
     args = parser.parse_args()
-    main(page=args.page, limit=args.limit, data_dir=DATA_DIR)
+    main(page=args.page, limit=args.limit, data_dir=DATA_DIR, update = args.update)
