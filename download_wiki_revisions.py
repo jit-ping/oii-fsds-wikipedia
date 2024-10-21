@@ -62,16 +62,14 @@ def find_yearmonth(revision: str) -> str:
 
 
 
-def main(page: str, limit: int, data_dir: Path, update:bool):
+def main(page: str, limit: int, data_dir: Path, update: str):
     """
     Downloads the main page (with revisions) for the given page title.
     Organizes the revisions into a folder structure like
     <page_name>/<year>/<month>/<revision_id>.xml
     """
-    
-    print(type(update))
-    print(update)
-    if update == False:
+    print(type(update), update)
+    if update == "False":
         print (count_files(data_dir/page))
         return
     
@@ -138,6 +136,6 @@ if __name__ == "__main__":
         default=10,
         help="Number of revisions to download",
     )
-    parser.add_argument("--update", type=bool, default=False, help="Do you want to download new files")
+    parser.add_argument('update', type = str,help="Do you want to download new files")
     args = parser.parse_args()
-    main(page=args.page, limit=args.limit, data_dir=DATA_DIR, update = args.update)
+    main(page=args.page, limit=args.limit,update = args.update, data_dir=DATA_DIR)
