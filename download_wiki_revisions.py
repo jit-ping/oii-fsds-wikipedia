@@ -180,40 +180,6 @@ def extract_yearmonth(timestamp: datetime) -> str:
 def find_yearmonth(revision: str) -> str:
     return extract_yearmonth(find_timestamp(revision))
 
-<<<<<<< HEAD
-
-
-def main(page: str, limit: int, data_dir: Path, update: str):
-    """
-    Downloads the main page (with revisions) for the given page title.
-    Organizes the revisions into a folder structure like
-    <page_name>/<year>/<month>/<revision_id>.xml
-    """
-    print(type(update), update)
-    if update == "False":
-        print (count_files(data_dir/page))
-        return
-    
-    print(f"Downloading {limit} revisions of {page} to {data_dir}")
-    raw_revisions = download_page_w_revisions(page, limit=limit)
-    validate_page(page, page_xml=raw_revisions)
-    print("Downloaded revisions. Parsing and saving...")
-    for wiki_revision in tqdm(parse_mediawiki_revisions(raw_revisions), total=limit):
-        revision_path = construct_path(
-            wiki_revision=wiki_revision, page_name=page, save_dir=data_dir
-        )
-        if not revision_path.exists():
-            revision_path.parent.mkdir(parents=True, exist_ok=True)
-        revision_path.write_text(wiki_revision)
-    
-    
-    
-    print("Done!")
-    print (count_files(data_dir/page))
-
-
-=======
->>>>>>> upstream/main
 def construct_path(page_name: str, save_dir: Path, wiki_revision: str) -> Path:
     revision_id = extract_id(wiki_revision)
     timestamp = find_timestamp(wiki_revision)
@@ -263,10 +229,5 @@ if __name__ == "__main__":
         default=DATA_DIR,
         help="Directory to store the revision data",
     )
-    parser.add_argument('update', type = str,help="Do you want to download new files")
     args = parser.parse_args()
-<<<<<<< HEAD
-    main(page=args.page, limit=args.limit,update = args.update, data_dir=DATA_DIR)
-=======
     main(page=args.page, data_dir=args.data_dir, count_only=args.count_only)
->>>>>>> upstream/main
